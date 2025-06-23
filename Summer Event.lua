@@ -364,7 +364,7 @@ local v48 = v16.Main:AddDropdown("DropdownSelectSeed", {
         "Feijoa",
         "Sugar Apple"
     },
-    Multi = false,
+    Multi = true,
     Default = 1,
     Callback = function(value)
         selectedSeed = value
