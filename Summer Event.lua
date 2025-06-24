@@ -893,28 +893,65 @@ end
 if game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Respawn") then
     game:GetsService("ReplicatedStorage").Effect.Container.Respawn:Destroy();
 end
-local antiAfkEnabled = true
-local vu = game:GetService("VirtualUser")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- 
-local function setupAntiAfk()
-    game:GetService("Players").LocalPlayer.Idled:Connect(function()
-        if antiAfkEnabled then
-            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            task.wait(1)
-            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        end
-    end)
-end
--- 
-setupAntiAfk()
+-- Dicionário com os CFrames
+local teleportLocations = {
+    ["Pet Shop"] = CFrame.new(
+        -289.751892, 4.12989902, -2.47115898,
+        -0.84828186, 2.38418579e-07, 0.529545009,
+        1.53930344e-07, 1, -9.10128648e-08,
+        -0.529545069, 1.86264515e-09, -0.84828186
+    ),
+    ["Gear Shop"] = CFrame.new(
+        -289.38501, 9.16600037, -13.6640015,
+        -1, 0, 0,
+        0, 1, 0,
+        0, 0, -1
+    ),
+    ["Cosmetics Shop"] = CFrame.new(
+        -289.266479, 9.2684269, -31.6624031,
+        -1, 0, 0,
+        0, 1, 0,
+        0, 0, -1
+    )
+}
 
---
-v16.Misc:AddToggle("AntiAfkToggle", {
-    Title = "Anti-AFK",
-    Description = "",
-    Default = true,
+-- Variável para armazenar o local selecionado
+local selectedLocation = "Pet Shop"
+
+-- Dropdown de seleção
+v16.Shop:AddDropdown("TeleportDropdown", {
+    Title = "Teleport To Shop",
+    Description = "Escolha um local para teleportar",
+    Values = { "Pet Shop", "Gear Shop", "Cosmetics Shop" },
+    Default = "Pet Shop",
+    Callback = function(selected)
+        selectedLocation = selected
+    end
+})
+
+-- Toggle para executar o teleporte
+v16.Shop:AddToggle("ToggleTeleportNow", {
+    Title = "Teleportar Agora",
+    Description = "Ativa o teleporte para o local escolhido",
+    Default = false,
     Callback = function(state)
-        antiAfkEnabled = state
+        if state then
+            local cf = teleportLocations[selectedLocation]
+            if cf and humanoidRootPart then
+                humanoidRootPart.CFrame = cf + (cf.LookVector * -2)
+            end
+
+            -- Aguarda um frame e desativa o toggle sozinho
+            task.wait(0.1)
+            local toggle = v16.Main.Flags["ToggleTeleportNow"]
+            if toggle then
+                toggle:Set(false)
+            end
+        end
     end
 })
