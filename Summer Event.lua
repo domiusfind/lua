@@ -890,7 +890,6 @@ end);
 if game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Death") then
     game:GetService("ReplicatedStorage").Effect.Container.Death:Destroy();
 end
-local v56 = v16.Misc:AddSection("[ CONFIG ] ");
 if game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Respawn") then
     game:GetsService("ReplicatedStorage").Effect.Container.Respawn:Destroy();
 end
@@ -911,7 +910,7 @@ end
 setupAntiAfk()
 
 --
-local v51 = v16.Misc:AddToggle("AntiAfkToggle", {
+v16.Misc:AddToggle("AntiAfkToggle", {
     Title = "Anti-AFK",
     Description = "",
     Default = true,
