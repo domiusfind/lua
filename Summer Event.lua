@@ -781,6 +781,70 @@ v16.Main:AddToggle("ToggleAutoSellSummer", {
         end
     end
 })
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Dicionário com os CFrames
+local teleportLocations = {
+    ["Pet Shop"] = CFrame.new(
+        -289.751892, 4.12989902, -2.47115898,
+        -0.84828186, 2.38418579e-07, 0.529545009,
+        1.53930344e-07, 1, -9.10128648e-08,
+        -0.529545069, 1.86264515e-09, -0.84828186
+    ),
+    ["Gear Shop"] = CFrame.new(
+        -289.38501, 9.16600037, -13.6640015,
+        -1, 0, 0,
+        0, 1, 0,
+        0, 0, -1
+    ),
+    ["Cosmetics Shop"] = CFrame.new(
+        -289.266479, 9.2684269, -31.6624031,
+        -1, 0, 0,
+        0, 1, 0,
+        0, 0, -1
+    )
+}
+
+-- Guardar local selecionado
+local selectedLocation = "Pet Shop"
+
+-- Dropdown
+v16.Shop:AddDropdown("TeleportDropdown", {
+    Title = "Teleport To Shop",
+    Description = "Escolha um local para teleportar",
+    Values = { "Pet Shop", "Gear Shop", "Cosmetics Shop" },
+    Default = "Pet Shop",
+    Callback = function(selected)
+        selectedLocation = selected
+    end
+})
+
+-- Variável para guardar o toggle
+local teleportToggle
+
+-- Toggle
+v16.Shop:AddToggle("ToggleTeleportNow", {
+    Title = "Teleportar Agora",
+    Description = "Ativa o teleporte para o local escolhido",
+    Default = false,
+    Callback = function(state)
+        if state then
+            local cf = teleportLocations[selectedLocation]
+            if cf and humanoidRootPart then
+                humanoidRootPart.CFrame = cf + (cf.LookVector * -2)
+            end
+
+            -- Desativa o toggle diretamente
+            task.wait(0.1)
+            if teleportToggle and teleportToggle:Set then
+                teleportToggle:Set(false)
+            end
+        end
+    end
+})
 local v22 = Instance.new("ScreenGui");
 local v23 = Instance.new("ImageButton");
 local v24 = Instance.new("UICorner");
