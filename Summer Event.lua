@@ -367,8 +367,8 @@ local v48 = v16.Main:AddDropdown("DropdownSelectSeed", {
         "Feijoa",
         "Sugar Apple"
     },
-    Multi = true,
-    Default = {},
+    Multi = false,
+    Default = 1,
     Callback = function(value)
         selectedSeed = value
     end
@@ -890,6 +890,32 @@ end);
 if game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Death") then
     game:GetService("ReplicatedStorage").Effect.Container.Death:Destroy();
 end
+local v56 = v16.Misc:AddSection("[ CONFIG ] ");
 if game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Respawn") then
     game:GetsService("ReplicatedStorage").Effect.Container.Respawn:Destroy();
 end
+local antiAfkEnabled = true
+local vu = game:GetService("VirtualUser")
+
+-- 
+local function setupAntiAfk()
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        if antiAfkEnabled then
+            vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        end
+    end)
+end
+-- 
+setupAntiAfk()
+
+--
+local v51 = v16.Misc:AddToggle("AntiAfkToggle", {
+    Title = "Anti-AFK",
+    Description = "",
+    Default = true,
+    Callback = function(state)
+        antiAfkEnabled = state
+    end
+})
