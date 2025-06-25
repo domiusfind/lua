@@ -921,7 +921,7 @@ local teleportLocations = {
 }
 
 -- Dropdown que teleporta imediatamente
-v16.Shop:AddDropdown("TeleportDropdown", {
+local v56 = v16.Shop:AddDropdown("TeleportDropdown", {
     Title = "Teleport To Shop",
     Description = "Clique para se teleportar para o local",
     Values = { "Pet Shop", "Gear Shop", "Cosmetics Shop" },
