@@ -893,3 +893,43 @@ end
 if game:GetService("ReplicatedStorage").Effect.Container:FindFirstChild("Respawn") then
     game:GetsService("ReplicatedStorage").Effect.Container.Respawn:Destroy();
 end
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Dicionário com os CFrames
+local teleportLocations = {
+    ["Pet Shop"] = CFrame.new(
+        -289.751892, 4.12989902, -2.47115898,
+        -0.84828186, 2.38418579e-07, 0.529545009,
+        1.53930344e-07, 1, -9.10128648e-08,
+        -0.529545069, 1.86264515e-09, -0.84828186
+    ),
+    ["Gear Shop"] = CFrame.new(
+        -289.38501, 9.16600037, -13.6640015,
+        -1, 0, 0,
+        0, 1, 0,
+        0, 0, -1
+    ),
+    ["Cosmetics Shop"] = CFrame.new(
+        -289.266479, 9.2684269, -31.6624031,
+        -1, 0, 0,
+        0, 1, 0,
+        0, 0, -1
+    )
+}
+
+-- Dropdown que teleporta imediatamente
+v16.Shop:AddDropdown("TeleportDropdown", {
+    Title = "Teleport To Shop",
+    Description = "Clique para se teleportar para o local",
+    Values = { "Pet Shop", "Gear Shop", "Cosmetics Shop" },
+    Default = nil,
+    Callback = function(selected)
+        local cf = teleportLocations[selected]
+        if cf and humanoidRootPart then
+            humanoidRootPart.CFrame = cf + (cf.LookVector * -2)
+        end
+    end
+})
