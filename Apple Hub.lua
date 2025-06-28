@@ -420,7 +420,7 @@ local Slider = t:AddSlider("Slider",
 	Description = "",
 	Default = getgenv()["Config"].nhuw,
 	Min = 1,
-	Max = 300,
+	Max = 200,
 	Rounding = 1,
 	Callback = function(Value)
 		getgenv()["Config"].nhuw = Value
@@ -597,7 +597,7 @@ spawn(function()
 		--end)
 	end
 end)
-local farmingSection = sv:AddSection("[ SUMMER EVENT 🏖️]")
+local farmingSection = st:AddSection("[ SUMMER EVENT 🏖️]")
 local autoCollectOptimized = false
 local collectThread = nil
 
