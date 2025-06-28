@@ -356,6 +356,11 @@ local t = Window:AddTab({
 	Title = "Farming",
 	Icon = ""
 })
+local ws = Window:AddTab({
+	Title = "Status",
+	Icon = ""
+})
+
 local sv = Window:AddTab({
 	Title = "Shop",
 	Icon = ""
@@ -370,7 +375,7 @@ local farmingSection = t:AddSection("[ FARMING ]")
 local Toggle = t:AddToggle("MyToggle", 
 {
 	Title = "Auto Collect",
-	Description = "",
+	Description = "Sell and Collect ",
 	Default = getgenv()["Config"].Tnhuw ,
 	Callback = function(state)
 		getgenv()["Config"].Tnhuw = state
@@ -643,7 +648,7 @@ local Toggle = t:AddToggle("MyToggle",
 							local fruitName = fruitModel.Name
 							if fruitsToCollect[fruitName] then
 								collectRemote.send({fruitModel})
-								task.wait(0.05)
+								task.wait(0.01)
 							end
 						end
 					end
@@ -683,6 +688,41 @@ local Toggle = t:AddToggle("MyToggle",
         elseif not state and sellThread then
             task.cancel(sellThread)
             sellThread = nil
+        end
+    end
+})
+-- Tabela com os nomes visíveis
+local shop = {
+    "Seed Shop",
+    "Sell",
+    "Gear Shop",
+    "Egg"
+}
+
+-- Mapeamento dos nomes para objetos reais no workspace
+local teleportPoints = {
+    ["Seed Shop"] = workspace.Tutorial_Points.Tutorial_Point_1,
+    ["Sell"] = workspace.Tutorial_Points.Tutorial_Point_2,
+    ["Gear Shop"] = workspace.Tutorial_Points.Tutorial_Point_3,
+    ["Egg"] = workspace.Tutorial_Points.Tutorial_Point_4,
+}
+
+-- Dropdown simples com Callback direto
+sv:AddDropdown("TeleportDropdown", {
+    Title = "Select to Tp",
+    Description = "",
+    Values = shop,
+    Multi = false,
+    Callback = function(selected)
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+
+        local target = teleportPoints[selected]
+        if target and hrp then
+            hrp.CFrame = target.CFrame
+        else
+            warn("Failed to teleport: Missing target or HumanoidRootPart.")
         end
     end
 })
