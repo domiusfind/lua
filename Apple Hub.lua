@@ -434,7 +434,7 @@ if #getgenv()["Config"]["tnhuw_"] > 0 then
 	end
 end
 local farmingSection = st:AddSection("[ BUY ]")
-local MultiDropdown = t:AddDropdown("MultiDropdown", {
+local MultiDropdown = sv:AddDropdown("MultiDropdown", {
 	Title = "Select seed to want buy",
 	Description = "",
 	Values = shop,
@@ -447,7 +447,7 @@ MultiDropdown:OnChanged(function(Value)
 	savesetting()
 end)
 
-local Toggle = st:AddToggle("MyToggle", 
+local Toggle = sv:AddToggle("MyToggle", 
 {
 	Title = "Auto Buy Seed",
 	Description = "",
