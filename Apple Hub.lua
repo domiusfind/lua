@@ -195,7 +195,7 @@ local destroy = {
     "Sugar Apple"
 }
 
-local Shop = {
+local shop = {
 	"Daffodil",
 	"Coconut",
 	"Tomato",
@@ -437,7 +437,7 @@ local farmingSection = st:AddSection("[ BUY ]")
 local MultiDropdown = t:AddDropdown("MultiDropdown", {
 	Title = "Select seed to want buy",
 	Description = "",
-	Values = Shop,
+	Values = shop,
 	Multi = true,
 	Default = getgenv()["Config"]["tnhuw_"],
 })
