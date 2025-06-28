@@ -726,3 +726,52 @@ sv:AddDropdown("TeleportDropdown", {
         end
     end
 })
+-- Lista de gears disponíveis
+local gearList = {
+    "Watering Can",
+    "Trowel",
+    "Recall Wrench",
+    "Basic Sprinkler",
+    "Advanced Sprinkler",
+    "Godly Sprinkler",
+    "Magnifying Glass",
+    "Tanning Mirror",
+    "Cleaning Spray",
+    "Master Sprinkler",
+    "Favorite Tool",
+    "Harvest Tool",
+    "Friendship Pot"
+}
+
+-- Variáveis de controle
+local selectedGear = gearList[1]
+local autoBuyEnabled = false
+
+-- Dropdown para seleção de gear
+sv:AddDropdown("AutoBuyGearDropdown", {
+    Title = "Auto Buy Gear",
+    Description = "Select Gear to buy",
+    Values = gearList,
+    Multi = true,
+    Default = selectedGear,
+    Callback = function(gear)
+        selectedGear = gear
+        if autoBuyEnabled and selectedGear then
+            game:GetService("ReplicatedStorage").GameEvents.BuyGearStock:FireServer(selectedGear)
+            print("Comprando gear:", selectedGear)
+        end
+    end
+})
+
+-- Toggle para ativar/desativar compra automática
+sv:AddToggle("AutoBuyGearToggle", {
+    Title = "Auto Buy Gear",
+    Default = false,
+    Callback = function(state)
+        autoBuyEnabled = state
+        if autoBuyEnabled and selectedGear then
+            game:GetService("ReplicatedStorage").GameEvents.BuyGearStock:FireServer(selectedGear)
+            print("webhook***********", selectedGear)
+        end
+    end
+})
