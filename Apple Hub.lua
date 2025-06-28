@@ -175,6 +175,25 @@ local hello = {
 	"Bamboo"
 }
 
+local destroy = {
+    "Carrot",
+    "Tomato",
+    "Poatato",
+    "Strawberry",
+    "Blueberry",
+    "Cauliflower",
+    "Watermelon",
+    "Green Apple",
+    "Avocado",
+    "Banana",
+    "Pineapple",
+    "Kiwi",
+    "Beli Pepper",
+    "Prickly Pear",
+    "Loquato",
+    "Feijoa",
+    "Sugar Apple"
+}
 local MyFarm
 for _2 , v3 in pairs(workspace.Farm:GetChildren()) do
 	if v3.Name == "Farm" then
@@ -316,6 +335,10 @@ local t = Window:AddTab({
 	Title = "Farming",
 	Icon = ""
 })
+local st = Window:AddTab({
+	Title = "Shop",
+	Icon = ""
+})
 local sv = Window:AddTab({
 	Title = "Event",
 	Icon = ""
@@ -367,15 +390,6 @@ local Toggle = t:AddToggle("MyToggle",
 		savesetting()
 	end 
 })
-
-t:AddButton({
-	Title = "Sell All",
-	Description = "",
-	Callback = function()
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(86.8899384, 2.99999976, 0.119625024, -6.69919464e-05, 8.90339535e-08, -1, -4.8785342e-08, 1, 8.9037222e-08, 1, 4.8791307e-08, -6.69919464e-05)
-		game:GetService("ReplicatedStorage").GameEvents.Sell_Inventory:FireServer()
-	end
-})
 local Slider = t:AddSlider("Slider", 
 {
 	Title = "Select quantity to sell",
@@ -423,7 +437,7 @@ local Toggle = t:AddToggle("MyToggle",
 local lll = sv:AddDropdown("MultiDropdown", {
 	Title = "Select seed to want destroy",
 	Description = "",
-	Values = hello,
+	Values = destroy,
 	Multi = true,
 	Default = getgenv()["Config"]["hola"],
 })
@@ -653,7 +667,7 @@ local Toggle = sv:AddToggle("MyToggle",
                     }
 
                     game:GetService("ReplicatedStorage").GameEvents.SummerHarvestRemoteEvent:FireServer(unpack(args))
-                    task.wait(1) -- pode ajustar o delay se quiser mais rápido ou mais lento
+                    task.wait(0) -- pode ajustar o delay se quiser mais rápido ou mais lento
                 end
             end)
         elseif not state and sellThread then
