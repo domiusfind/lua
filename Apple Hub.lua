@@ -194,6 +194,30 @@ local destroy = {
     "Feijoa",
     "Sugar Apple"
 }
+
+local Shop = {
+	"Daffodil",
+	"Coconut",
+	"Tomato",
+	"Apple",
+	"Blueberry",
+	"Strawberry",
+	"Watermelon",
+	"Mushroom",
+	"Pumpkin",
+	"Pepper",
+	"Cacao",
+	"Corn",
+	"Dragon Fruit",
+	"Orange Tulip",
+	"Carrot",
+	"Mango",
+	"Cactus",
+	"Beanstalk",
+	"Grape",
+	"Bamboo"
+}	
+
 local MyFarm
 for _2 , v3 in pairs(workspace.Farm:GetChildren()) do
 	if v3.Name == "Farm" then
@@ -409,11 +433,11 @@ if #getgenv()["Config"]["tnhuw_"] > 0 then
 		table.insert(chiu, i)
 	end
 end
-local farmingSection = t:AddSection("[ BUY ]")
+local farmingSection = st:AddSection("[ BUY ]")
 local MultiDropdown = t:AddDropdown("MultiDropdown", {
 	Title = "Select seed to want buy",
 	Description = "",
-	Values = hello,
+	Values = Shop,
 	Multi = true,
 	Default = getgenv()["Config"]["tnhuw_"],
 })
@@ -423,7 +447,7 @@ MultiDropdown:OnChanged(function(Value)
 	savesetting()
 end)
 
-local Toggle = t:AddToggle("MyToggle", 
+local Toggle = st:AddToggle("MyToggle", 
 {
 	Title = "Auto Buy Seed",
 	Description = "",
