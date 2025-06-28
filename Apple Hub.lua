@@ -364,7 +364,7 @@ local sv = Window:AddTab({
 	Icon = ""
 })
 local st = Window:AddTab({
-	Title = "Event",
+	Title = "Statistics",
 	Icon = ""
 })
 
@@ -597,7 +597,7 @@ spawn(function()
 		--end)
 	end
 end)
-local farmingSection = st:AddSection("[ SUMMER EVENT 🏖️]")
+local farmingSection = t:AddSection("[ SUMMER EVENT 🏖️]")
 local autoCollectOptimized = false
 local collectThread = nil
 
@@ -619,7 +619,7 @@ local fruitsToCollect = {
 }
 
 -- 🔘 Toggle no seu hub
-local Toggle = st:AddToggle("MyToggle", 
+local Toggle = t:AddToggle("MyToggle", 
 {
 	Title = "Collect Fruit Summer Event",
 	Description = "Only summer fruits",
@@ -675,7 +675,7 @@ local Toggle = st:AddToggle("MyToggle",
 local autoSellSummer = false
 local sellThread = nil
 
-local Toggle = st:AddToggle("MyToggle", 
+local Toggle = t:AddToggle("MyToggle", 
 {
     Title = "Auto Sell Summer Fruit",
     Description = "Sell all summer fruits instantly",
