@@ -196,26 +196,23 @@ local destroy = {
 }
 
 local shop = {
-	"Daffodil",
-	"Coconut",
-	"Tomato",
-	"Apple",
-	"Blueberry",
-	"Strawberry",
-	"Watermelon",
-	"Mushroom",
-	"Pumpkin",
-	"Pepper",
-	"Cacao",
-	"Corn",
-	"Dragon Fruit",
-	"Orange Tulip",
-	"Carrot",
-	"Mango",
-	"Cactus",
-	"Beanstalk",
-	"Grape",
-	"Bamboo"
+    "Carrot",
+    "Tomato",
+    "Poatato",
+    "Strawberry",
+    "Blueberry",
+    "Cauliflower",
+    "Watermelon",
+    "Green Apple",
+    "Avocado",
+    "Banana",
+    "Pineapple",
+    "Kiwi",
+    "Beli Pepper",
+    "Prickly Pear",
+    "Loquato",
+    "Feijoa",
+    "Sugar Apple"
 }	
 
 local MyFarm
@@ -403,17 +400,6 @@ local Toggle = t:AddToggle("MyToggle",
 		savesetting()
 	end 
 })
-
-local Toggle = t:AddToggle("MyToggle", 
-{
-	Title = "Auto Sell Pollinated Crops",
-	Description = "",
-	Default = getgenv()["Config"].AutoPlant,
-	Callback = function(state)
-		getgenv()["Config"].AutoSellMoonlitCrop = state
-		savesetting()
-	end 
-})
 local Slider = t:AddSlider("Slider", 
 {
 	Title = "Select quantity to sell",
@@ -433,7 +419,7 @@ if #getgenv()["Config"]["tnhuw_"] > 0 then
 		table.insert(chiu, i)
 	end
 end
-local farmingSection = st:AddSection("[ BUY ]")
+local farmingSection = sv:AddSection("[ BUY ]")
 local MultiDropdown = sv:AddDropdown("MultiDropdown", {
 	Title = "Select seed to want buy",
 	Description = "",
