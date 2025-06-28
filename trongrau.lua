@@ -304,8 +304,8 @@ end)
 --Carrot Seed [X6]
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Window = Fluent:CreateWindow({
-	Title = "Gold Hub [Beta]",
-	SubTitle = "by rin",
+	Title = "Apple hub [ ☀️🏖️]",
+	SubTitle = "",
 	TabWidth = 160,
 	Size = UDim2.fromOffset(580, 400),
 	Acrylic = true,
@@ -313,11 +313,11 @@ local Window = Fluent:CreateWindow({
 	MinimizeKey = Enum.KeyCode.End
 })
 local t = Window:AddTab({
-	Title = "Main",
+	Title = "Farming",
 	Icon = ""
 })
 local sv = Window:AddTab({
-	Title = "Server Status",
+	Title = "Event",
 	Icon = ""
 })
 
@@ -559,125 +559,11 @@ spawn(function()
 		--end)
 	end
 end)
---209
-
-local serverinfo = sv:AddParagraph({
-	Title = "Server Info",
-	Content = string.format("%s \n%s \n%s \n&s",
-    "Seed: not update",
-    "Pet: not update",
-    "Event Shop: not update",
-    "Gear: not update"
-    )
-})
-
-
-local stockseedst = sv:AddParagraph({
-	Title = "Seed Stock",
-	Content = "not update"
-})
-
-
-local stockpetst = sv:AddParagraph({
-	Title = "Egg Stock",
-	Content = "not update"
-})
-
-local stockeventst = sv:AddParagraph({
-	Title = "Event Shop Stock",
-	Content = "not update"
-})
-
-local stockgearst = sv:AddParagraph({
-	Title = "Gear Stock",
-	Content = "not update"
-})
-
-local paragraph = {
-	["stock"] = {
-		["Seed"] = stockseedst,
-		["Pet"] = stockpetst,
-		["Gear"] = stockgearst,
-		["Event"] = stockeventst
-	}
-}
--- {01f30b05-5c37-42e7-ac8f-13c85d26534c}
-
-
-spawn(function()
-	while wait(0.1) do
-		local tn = {
-			{
-				["Name"] = "Seed",
-				["nhuw"] = "not update"
-			},
-			{
-				["Name"] = "Pet",
-				["nhuw"] = "not update"
-			},
-			{
-				["Name"] = "Gear",
-				["nhuw"] = "not update"
-			},
-			{
-				["Name"] = "Event",
-				["nhuw"] = "not update"
-			}
-		}
-		for i, v in pairs(paragraph["stock"]) do
-			local tnhuw_str, tn_str = stock[i]()
-			tnhuw_str = format_[i](tnhuw_str)
-			v:SetDesc(tnhuw_str)
-			for n = 1, #tn do
-				if tn[n]["Name"] == i then
-					tn[n]["nhuw"] = tn_str
-				end
-			end
-		end
-		local dtn = ""
-		for n = 1, #tn do
-			dtn = string.format(dtn .. "%s: %s\n", tn[n]["Name"], tn[n]["nhuw"])
-		end
-		serverinfo:SetDesc(dtn)
-	end
-end)
-
-local j = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/126884695634066/servers/Public?cursor=&sortOrder=Desc&excludeFullGames=true"))
-local sver = Window:AddTab({
-	Title = "Server - JobId"
-})
-local p = {}
-for i, v in pairs(j["data"]) do
-	p[#p + 1] = {
-		["JobId"] = v["id"],
-		["Ping"] = v["ping"],
-		["Players"] = v["playing"]
-	}
-end
- 
-sver:AddButton({
-	Title = "Join Random Server",
-	Description = "",
-	Callback = function()
-		game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, p[math.random(1, #p)]["JobId"], game.Players.LocalPlayer)
-	end
-})
-
-
-
-for i, v in pairs(p) do
-	sver:AddButton({
-		Title = string.format("JobId: %s", v["JobId"]),
-		Description = string.format("Ping: %s - PlayerCount: %s", v["Ping"], v["Players"]),
-		Callback = function()
-			game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, i, game.Players.LocalPlayer)
-		end
-	})
 local autoCollectOptimized = false
 local collectThread = nil
 
 local fruitsToCollect = {
-	["Strawberry"] = true,
+	["Tomato"] = true,
 	["Cauliflower"] = true,
 	["Watermelon"] = true,
 	["Green Apple"] = true,
@@ -689,10 +575,12 @@ local fruitsToCollect = {
 	["Prickly Pear"] = true,
 	["Loquato"] = true,
 	["Feijoa"] = true,
+	["Strawberry"] = true,
+	["Suga Apple"] = true,
 }
 
 -- 🔘 Toggle no seu hub
-local Toggle = t:AddToggle("MyToggle", 
+local Toggle = sv:AddToggle("MyToggle", 
 {
 	Title = "Collect Fruit Summer Event",
 	Description = "Only summer fruits",
@@ -748,7 +636,7 @@ local Toggle = t:AddToggle("MyToggle",
 local autoSellSummer = false
 local sellThread = nil
 
-local Toggle = t:AddToggle("MyToggle", 
+local Toggle = sv:AddToggle("MyToggle", 
 {
     Title = "Auto Sell Summer Fruit",
     Description = "Sell all summer fruits instantly",
