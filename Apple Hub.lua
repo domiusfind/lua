@@ -359,11 +359,11 @@ local t = Window:AddTab({
 	Title = "Farming",
 	Icon = ""
 })
-local st = Window:AddTab({
+local sv = Window:AddTab({
 	Title = "Shop",
 	Icon = ""
 })
-local sv = Window:AddTab({
+local st = Window:AddTab({
 	Title = "Event",
 	Icon = ""
 })
@@ -458,7 +458,7 @@ local Toggle = sv:AddToggle("MyToggle",
 	end 
 })
 
-local lll = sv:AddDropdown("MultiDropdown", {
+local lll = st:AddDropdown("MultiDropdown", {
 	Title = "Select seed to want destroy",
 	Description = "",
 	Values = destroy,
@@ -469,7 +469,7 @@ lll:OnChanged(function(Value)
 	getgenv()["Config"]["hola"] = Value
 	savesetting()
 end)
-local Toggle = sv:AddToggle("MyToggle", 
+local Toggle = st:AddToggle("MyToggle", 
 {
 	Title = "Auto Destroy Plant",
 	Description = "",
@@ -619,7 +619,7 @@ local fruitsToCollect = {
 }
 
 -- 🔘 Toggle no seu hub
-local Toggle = sv:AddToggle("MyToggle", 
+local Toggle = st:AddToggle("MyToggle", 
 {
 	Title = "Collect Fruit Summer Event",
 	Description = "Only summer fruits",
@@ -675,7 +675,7 @@ local Toggle = sv:AddToggle("MyToggle",
 local autoSellSummer = false
 local sellThread = nil
 
-local Toggle = sv:AddToggle("MyToggle", 
+local Toggle = st:AddToggle("MyToggle", 
 {
     Title = "Auto Sell Summer Fruit",
     Description = "Sell all summer fruits instantly",
