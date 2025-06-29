@@ -762,7 +762,6 @@ sv:AddDropdown("AutoBuyGearDropdown", {
         end
     end
 })
-
 -- Toggle para ativar/desativar compra automática
 sv:AddToggle("AutoBuyGearToggle", {
     Title = "Auto Buy Gear",
@@ -775,3 +774,82 @@ sv:AddToggle("AutoBuyGearToggle", {
         end
     end
 })
+--// Criar GUI do botão flutuante
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FloatingToggleButton"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = game:GetService("CoreGui")
+
+--// Criar botão
+local Button = Instance.new("ImageButton")
+Button.Size = UDim2.new(0, 50, 0, 50)
+Button.Position = UDim2.new(0.020833, 0, 0.105289, 0) -- Posição ajustada
+Button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Button.BorderSizePixel = 0
+Button.Draggable = true
+Button.Image = "http://www.roblox.com/asset/?id=132715149837734"
+Button.Parent = ScreenGui
+
+--// Arredondar botão
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 12)
+Corner.Parent = Button
+
+--// Partículas do botão
+local Particles = Instance.new("ParticleEmitter")
+Particles.Parent = Button
+Particles.LightEmission = 1
+Particles.Size = NumberSequence.new{
+    NumberSequenceKeypoint.new(0, 0.1),
+    NumberSequenceKeypoint.new(1, 0)
+}
+Particles.Lifetime = NumberRange.new(0.5, 1)
+Particles.Speed = NumberRange.new(5, 10)
+Particles.Rate = 0
+Particles.Color = ColorSequence.new(
+    Color3.fromRGB(255, 85, 255),
+    Color3.fromRGB(85, 255, 255)
+)
+
+--// TweenService para animações
+local TweenService = game:GetService("TweenService")
+
+--// Clique do botão: animação + simula tecla End
+Button.MouseButton1Down:Connect(function()
+    Particles.Rate = 100
+    task.delay(1, function()
+        Particles.Rate = 0
+    end)
+
+    -- Rotação 360
+    local rotateTween = TweenService:Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+        Rotation = 360
+    })
+    rotateTween:Play()
+    rotateTween.Completed:Connect(function()
+        Button.Rotation = 0
+    end)
+
+    -- Efeito de pulsar (aumenta e volta o tamanho)
+    local grow = TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Bounce), {
+        Size = UDim2.new(0, 60, 0, 60)
+    })
+    local shrink = TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Bounce), {
+        Size = UDim2.new(0, 50, 0, 50)
+    })
+    grow:Play()
+    grow.Completed:Connect(function()
+        shrink:Play()
+    end)
+
+    -- Simula tecla End (para abrir/fechar Fluent)
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
+end)
+
+--// (Opcional) Remove efeitos indesejados do jogo
+local effects = game:GetService("ReplicatedStorage"):FindFirstChild("Effect")
+if effects and effects:FindFirstChild("Container") then
+    local container = effects.Container
+    if container:FindFirstChild("Death") then container.Death:Destroy() end
+    if container:FindFirstChild("Respawn") then container.Respawn:Destroy() end
+end
