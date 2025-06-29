@@ -775,3 +775,52 @@ sv:AddToggle("AutoBuyGearToggle", {
         end
     end
 })
+local farmingSection = sv:AddSection("[ Egg's]")
+-- Referência à pasta dos ovos
+local eggFolder = workspace.NPCS["Pet Stand"].EggLocations
+
+-- Coletar nomes dos ovos (qualquer tipo de objeto com "Egg" no nome)
+local eggNames = {}
+for _, obj in pairs(eggFolder:GetChildren()) do
+    if string.find(obj.Name, "Egg") then
+        table.insert(eggNames, obj.Name)
+    end
+end
+
+-- Garantir pelo menos 1 egg
+local selectedEgg = eggNames[1]
+local autoBuyEgg = false
+
+-- Dropdown com ovos encontrados
+sv:AddDropdown("EggDropdown", {
+    Title = "Select Egg",
+    Description = "Choose which egg to buy",
+    Values = eggNames,
+    Multi = false,
+    Default = selectedEgg,
+    Callback = function(value)
+        selectedEgg = value
+    end
+})
+
+-- Toggle para auto buy
+sv:AddToggle("AutoBuyEggToggle", {
+    Title = "Auto Buy Egg",
+    Default = false,
+    Callback = function(state)
+        autoBuyEgg = state
+
+        -- Loop de auto compra
+        task.spawn(function()
+            while autoBuyEgg and selectedEgg do
+                local eggIndex = table.find(eggNames, selectedEgg)
+                if eggIndex then
+                    local args = { eggIndex }
+                    game:GetService("ReplicatedStorage").GameEvents.BuyPetEgg:FireServer(unpack(args))
+                    print("Comprando:", selectedEgg)
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
