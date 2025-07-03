@@ -588,34 +588,23 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 local Backpack = LocalPlayer:WaitForChild("Backpack")
 
-local autoPlanting = false
 local selectedSeed = nil
-local seedList = {}
+local autoPlanting = false
+local dropdownObject = nil
+local MyFarm = nil
 
--- Extrai nome limpo da seed (ex: "Banana Seed [X4]" → "Banana")
-local function extractSeedName(itemName)
-    local cleanName = itemName:gsub("%[X%d+%]", ""):gsub("%s+$", "")
-    local baseName = cleanName:gsub(" Seed$", ""):gsub("%s+$", "")
-    return baseName
-end
-
--- Busca seeds no inventário do jogador
-local function findSeedsInInventory()
-    local seedsFound = {}
-    
-    for _, item in pairs(Backpack:GetChildren()) do
-        if item:IsA("Tool") and item.Name:find("Seed") then
-            local seedName = extractSeedName(item.Name)
-            if not table.find(seedsFound, seedName) then
-                table.insert(seedsFound, seedName)
-            end
+-- 🔎 Detectar a fazenda do jogador
+for _, farm in pairs(workspace.Farm:GetChildren()) do
+    if farm.Name == "Farm" and farm:FindFirstChild("Important") and farm.Important:FindFirstChild("Data") then
+        local owner = farm.Important.Data:FindFirstChild("Owner")
+        if owner and (owner.Value == LocalPlayer or owner.Value == LocalPlayer.Name or (owner.Value.Name == LocalPlayer.Name)) then
+            MyFarm = farm
+            break
         end
     end
-    
-    return seedsFound
 end
 
--- Gera um ponto aleatório dentro do Part, para o personagem teleportar e plantar
+-- 🎯 Gera ponto aleatório no chão da fazenda
 local function randompt(part)
     local size = part.Size
     local offset = Vector3.new(
@@ -632,55 +621,78 @@ local function randompt(part)
     return CFrame.new(worldPos) * rotation
 end
 
--- Atualiza lista de seeds e recria dropdown
-local function updateSeedDropdown()
-    seedList = findSeedsInInventory()
+-- 🌱 Extrai nome limpo da seed
+local function extractSeedName(itemName)
+    local cleanName = itemName:gsub("%[X%d+%]", ""):gsub("%s+$", "")
+    local baseName = cleanName:gsub(" Seed$", ""):gsub("%s+$", "")
+    return baseName
+end
+
+-- 🔍 Encontra todas as seeds reais no inventário
+local function findSeedsInInventory()
+    local seedsFound = {}
+
+    for _, item in pairs(Backpack:GetChildren()) do
+        if item:IsA("Tool") and item.Name:find("Seed") and item.Name:find("%[X%d+%]") then
+            local seedName = extractSeedName(item.Name)
+            if seedName and not table.find(seedsFound, seedName) then
+                table.insert(seedsFound, seedName)
+            end
+        end
+    end
+
+    return seedsFound
+end
+
+-- 🔁 Atualiza o dropdown e mantém ordem dos elementos
+local function RefreshUI()
+    local seedList = findSeedsInInventory()
     if #seedList == 0 then
-        print("Nenhuma seed encontrada no inventário.")
+        warn("Nenhuma seed encontrada.")
         return
     end
 
-    if t.SeedSelector then
-        t.SeedSelector:Destroy()
-        t.SeedSelector = nil
+    -- Remove dropdown antigo
+    if dropdownObject then
+        dropdownObject:Destroy()
+        dropdownObject = nil
     end
 
-    t.SeedSelector = t:AddDropdown("SeedSelector", {
+    dropdownObject = t:AddDropdown("SeedSelector", {
         Title = "Select the seed to plant",
         Description = "",
         Values = seedList,
         Default = seedList[1],
         Callback = function(value)
             selectedSeed = value
-            print("Seed selecionada:", selectedSeed)
         end
     })
+
+    -- Toggle só uma vez
+    if not t._autoToggle then
+        t._autoToggle = t:AddToggle("ToggleAutoPlant", {
+            Title = "Auto Plant",
+            Default = false,
+            Callback = function(state)
+                autoPlanting = state
+            end
+        })
+    end
+
+    -- Botão só uma vez
+    if not t._refreshButton then
+        t._refreshButton = t:AddButton({
+            Title = "🔄 Atualizar Seeds",
+            Description = "Atualiza a lista de seeds disponíveis",
+            Callback = RefreshUI
+        })
+    end
 end
 
--- Botão para atualizar manualmente o dropdown
-t:AddButton({
-    Title = "Refresh Lis",
-    Description = "",
-    Callback = function()
-        updateSeedDropdown()
-    end
-})
-
--- Detecta a fazenda do jogador
-local MyFarm
-for _, farm in pairs(workspace.Farm:GetChildren()) do
-    if farm.Name == "Farm" and farm:FindFirstChild("Important") and farm.Important:FindFirstChild("Data") then
-        local owner = farm.Important.Data:FindFirstChild("Owner")
-        if owner and (owner.Value == LocalPlayer or owner.Value == LocalPlayer.Name or (owner.Value.Name == LocalPlayer.Name)) then
-            MyFarm = farm
-            break
-        end
-    end
-end
-
--- Encontra seed/tool no inventário ou equipado
+-- 🧰 Localiza seed no personagem ou mochila
 local function getSeedTool()
     local char = LocalPlayer.Character
+
     for _, item in pairs(char:GetChildren()) do
         if item:IsA("Tool") and extractSeedName(item.Name):lower() == selectedSeed:lower() then
             return item
@@ -696,7 +708,7 @@ local function getSeedTool()
     return nil
 end
 
--- Planta a seed em um ponto aleatório da fazenda
+-- 🚀 Planta a seed
 local function plantSeed(tool)
     if not tool or not MyFarm then return end
 
@@ -713,28 +725,14 @@ local function plantSeed(tool)
 
     hrp.CFrame = cf
 
-    wait(0.3)
+    task.wait(0.3)
 
     local fruitName = extractSeedName(tool.Name)
-
     ReplicatedStorage.GameEvents.Plant_RE:FireServer(Vector3.new(cf.X, cf.Y, cf.Z), fruitName)
     print("Plantou seed:", fruitName)
 end
 
--- Toggle para ativar/desativar auto plant
-local autoPlantToggle = t:AddToggle("ToggleAutoPlant", {
-    Title = "Auto Plant",
-    Description = "",
-    Default = false,
-    Callback = function(state)
-        autoPlanting = state
-    end
-})
-
--- Atualiza o dropdown inicialmente
-updateSeedDropdown()
-
--- Loop para auto plantar quando ativado
+-- 🔁 Loop de auto plant
 task.spawn(function()
     while true do
         if autoPlanting and selectedSeed and MyFarm then
@@ -742,7 +740,7 @@ task.spawn(function()
             if tool then
                 if Backpack:FindFirstChild(tool.Name) then
                     LocalPlayer.Character.Humanoid:EquipTool(tool)
-                    wait(0.1)
+                    task.wait(0.1)
                 end
 
                 if LocalPlayer.Character:FindFirstChild(tool.Name) then
@@ -753,6 +751,9 @@ task.spawn(function()
         task.wait(0.3)
     end
 end)
+
+-- 🟢 Inicializa UI
+RefreshUI()
 local farmingSection = t:AddSection("[ SUMMER EVENT 🏖️]")
 local autoCollectOptimized = false
 local collectThread = nil
