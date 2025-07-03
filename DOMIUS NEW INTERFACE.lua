@@ -369,7 +369,6 @@ local h = Window:AddTab({
 	Icon = ""
 
 
-local farmingSection = t:AddSection("[ FARMING ]")
 local Toggle = t:AddToggle("MyToggle", 
 {
 	Title = "Auto Collect",
