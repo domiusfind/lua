@@ -364,6 +364,9 @@ local st = Window:AddTab({
 	Title = "Config",
 	Icon = ""
 })
+local h = Window:AddTab({
+	Title = "Event",
+	Icon = ""
 
 
 local farmingSection = t:AddSection("[ FARMING ]")
@@ -682,8 +685,8 @@ local function RefreshUI()
     -- Botão só uma vez
     if not t._refreshButton then
         t._refreshButton = t:AddButton({
-            Title = "🔄 Atualizar Seeds",
-            Description = "Atualiza a lista de seeds disponíveis",
+            Title = "🔄 Refresh List",
+            Description = "",
             Callback = RefreshUI
         })
     end
@@ -754,7 +757,7 @@ end)
 
 -- 🟢 Inicializa UI
 RefreshUI()
-local farmingSection = t:AddSection("[ SUMMER EVENT 🏖️]")
+local farmingSection = h:AddSection("[ SUMMER EVENT 🏖️]")
 local autoCollectOptimized = false
 local collectThread = nil
 
@@ -776,7 +779,7 @@ local fruitsToCollect = {
 }
 
 -- 🔘 Toggle no seu hub
-local Toggle = t:AddToggle("MyToggle", 
+local Toggle = h:AddToggle("MyToggle", 
 {
 	Title = "Collect Fruit Summer Event",
 	Description = "Only summer fruits",
@@ -832,7 +835,7 @@ local Toggle = t:AddToggle("MyToggle",
 local autoSellSummer = false
 local sellThread = nil
 
-local Toggle = t:AddToggle("MyToggle", 
+local Toggle = h:AddToggle("MyToggle", 
 {
     Title = "Auto Sell Summer Fruit",
     Description = "Sell all summer fruits instantly",
