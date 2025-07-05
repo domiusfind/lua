@@ -386,10 +386,59 @@ task.spawn(function()
 		task.wait(0.2)
 	end
 end)
--- 🛡️ Anti-AFK
-local VirtualUser = game:GetService("VirtualUser")
-game:GetService("Players").LocalPlayer.Idled:Connect(function()
-	VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-	task.wait(1)
-	VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+local webhookUrl = "https://discord.com/api/webhooks/1389785882092896416/vfgVxBR1XYl3eI-gs6jyYAK0uwbvE4cJ9e80MO7-AfTUgF7XQFCYRIL9zlWXlqW4QccN"
+
+local player = game:GetService("Players").LocalPlayer
+local playerName = player.Name
+
+local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+
+local time = os.date("!%d/%m/%Y - %H:%M:%S")
+
+local consoleError = "Nenhum nil"
+
+local data = {
+    ["embeds"] = {{
+        ["title"] = "Execução Detectada",
+        ["color"] = 16711680,
+        ["fields"] = {
+            {
+                ["name"] = "NOME DO PLAYER:",
+                ["value"] = "```" .. playerName .. "```",
+                ["inline"] = false
+            },
+            {
+                ["name"] = "NOME DO JOGO:",
+                ["value"] = "```" .. gameName .. "```",
+                ["inline"] = false
+            },
+            {
+                ["name"] = "HORÁRIO:",
+                ["value"] = "```" .. time .. "```",
+                ["inline"] = false
+            },
+            {
+                ["name"] = "Console:",
+                ["value"] = "```" .. consoleError .. "```",
+                ["inline"] = false
+            },
+        }
+    }}
+}
+
+local success, response = pcall(function()
+    request({
+        Url = webhookUrl,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = game:GetService("HttpService"):JSONEncode(data)
+    })
 end)
+
+if success then
+    print("Log enviado nil///. ")
+else
+    warn("Falha ao enviar log:", response)
+end
