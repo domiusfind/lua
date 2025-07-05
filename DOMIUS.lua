@@ -103,8 +103,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local DataService = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("DataService"))
 local FruitPrices = {
-	["Carrot"] = 10, ["Apple"] = 15, ["Strawberry"] = 50,
-	["Blueberry"] = 25, ["Watermelon"] = 40, ["Mango"] = 50, ["Dragon Fruit"] = 60
+	["Carrot"] = 10, ["Blueberry"] = 600, ["Cauliflower"] = 1300,
+	["Tomato"] = 900, ["Banana"] = 7000, ["Mango"] = 100000, ["Dragon Fruit"] = 60
 }
 local function findOriginalMoneyLabel()
 	local moneyGui = PlayerGui:FindFirstChild("Sheckles_UI") or PlayerGui:FindFirstChild("MoneyGui")
@@ -134,7 +134,7 @@ local function parseMoney(text)
 end
 task.spawn(function()
 	while true do
-		task.wait(2)
+		task.wait(0)
 		local moneyLabel = findOriginalMoneyLabel()
 		if not moneyLabel then continue end
 		local money = parseMoney(moneyLabel.Text)
@@ -210,13 +210,13 @@ task.spawn(function()
 	while getgenv().AutoPlant do
 		local seed = checkHasSeed()
 		if seed then plantSeed(seed) end
-		task.wait(0.5)
+		task.wait(0.0)
 	end
 end)
 
 -- 🌾 Auto Collect + Venda
 getgenv().AutoCollect = true
-getgenv().CollectLimit = 50
+getgenv().CollectLimit = 4
 local CollectionService = game:GetService("CollectionService")
 local Remotes = require(ReplicatedStorage.Modules.Remotes)
 local CollectRemote = Remotes.Crops.Collect
@@ -338,6 +338,58 @@ if workspace:FindFirstChildOfClass("Terrain") then
 	workspace.Terrain.WaterReflectance = 0
 	workspace.Terrain.WaterTransparency = 1
 end
+-- 🔁 Ativador
+getgenv().AutoCollect = true
 
--- ✅ Pronto
-print("✅ Tela limpa com DomiusInterface e dinheiro mantidos.")
+-- 📦 Função que verifica quantos itens colhidos você tem
+local function getcrop()
+	local colhidos = {}
+	for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+		if not item.Name:lower():find("seed") and not item.Name:lower():find("shovel") then
+			table.insert(colhidos, item)
+		end
+	end
+	return colhidos
+end
+
+-- 🔍 Detecta as plantas maduras da sua própria fazenda
+local function getColetaveis()
+	local CollectionService = game:GetService("CollectionService")
+	local prontos = CollectionService:GetTagged("CollectPrompt")
+	local meus = {}
+
+	for _, obj in pairs(prontos) do
+		local important = obj:FindFirstAncestor("Important")
+		if important and important:FindFirstChild("Data") and important.Data.Owner.Value == game.Players.LocalPlayer.Name then
+			table.insert(meus, obj.Parent.Parent)
+		end
+	end
+
+	return meus
+end
+
+-- 📤 Evento de coleta
+local Remotes = require(game:GetService("ReplicatedStorage").Modules.Remotes)
+local CollectRemote = Remotes.Crops.Collect
+
+-- 🔁 Loop automático de coleta
+task.spawn(function()
+	while getgenv().AutoCollect do
+		local plantas = getColetaveis()
+		if #plantas > 0 then
+			for _, planta in pairs(plantas) do
+				if not getgenv().AutoCollect then break end
+				CollectRemote.send({ planta })
+				task.wait(0.1) -- Ajustável
+			end
+		end
+		task.wait(0.2)
+	end
+end)
+-- 🛡️ Anti-AFK
+local VirtualUser = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+	VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+	task.wait(1)
+	VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+end)
