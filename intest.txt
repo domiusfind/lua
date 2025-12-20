@@ -1,0 +1,569 @@
+getgenv().team = "Pirates"
+
+repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
+
+if game.Players.LocalPlayer.PlayerGui:FindFirstChild("Main (minimal)") then
+    repeat
+        task.wait()
+        local remotes = game.ReplicatedStorage:WaitForChild("Remotes")
+        remotes.CommF_:InvokeServer("SetTeam", getgenv().team)
+        task.wait(3)
+    until not game.Players.LocalPlayer.PlayerGui:FindFirstChild("Main (minimal)")
+end
+
+repeat task.wait() until game.Players.LocalPlayer.PlayerGui:FindFirstChild("Main")
+
+
+local lastHakiTime = 0
+local hakiCooldown = 1
+function AutoHaki()
+    if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
+        local currentTime = tick()
+        if currentTime - lastHakiTime >= hakiCooldown then
+            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
+            lastHakiTime = currentTime
+        end
+    end
+end
+local lastUnEquipTime = 0
+local unEquipCooldown = 0.5
+function UnEquipWeapon(Weapon)
+    local currentTime = tick()
+    if currentTime - lastUnEquipTime >= unEquipCooldown then
+        if game.Players.LocalPlayer.Character:FindFirstChild(Weapon) then
+            getgenv().NotAutoEquip = true
+            game.Players.LocalPlayer.Character[Weapon].Parent = game.Players.LocalPlayer.Backpack
+            getgenv().NotAutoEquip = false
+        end
+        lastUnEquipTime = currentTime
+    end
+end
+local lastEquipTime = 0
+local equipCooldown = 0.5
+function EquipWeapon(ToolSe)
+    local currentTime = tick()
+    if currentTime - lastEquipTime >= equipCooldown then        
+        if not getgenv().NotAutoEquip then
+            local tool = game.Players.LocalPlayer.Backpack:FindFirstChild(ToolSe)
+            if tool then
+                game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
+            end
+        end
+        lastEquipTime = currentTime
+    end
+end
+function BTP(p)
+    local player = game.Players.LocalPlayer
+    local humanoidRootPart = player.Character.HumanoidRootPart
+    local humanoid = player.Character.Humanoid
+    local playerGui = player.PlayerGui.Main
+    local targetPosition = p.Position
+    local lastPosition = humanoidRootPart.Position
+    repeat
+        humanoid.Health = 0
+        humanoidRootPart.CFrame = p
+        playerGui.Quest.Visible = false
+        if (humanoidRootPart.Position - lastPosition).Magnitude > 1 then
+            lastPosition = humanoidRootPart.Position
+            humanoidRootPart.CFrame = p
+        end
+        task.wait(0.5)
+    until (p.Position - humanoidRootPart.Position).Magnitude <= 2000
+end
+function BTPZ(v209)
+    local player = game.Players.LocalPlayer
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local rootPart = player.Character.HumanoidRootPart
+        rootPart.CFrame = v209
+    end
+end
+local lastTweenTime = 0
+local tweenCooldown = 0.5
+function fastpos(Pos)
+    local currentTime = tick()
+    if currentTime - lastTweenTime >= tweenCooldown then
+        local Distance = (Pos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+        local Speed = 1000        
+        local tween = game:GetService("TweenService"):Create(
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart,
+            TweenInfo.new(Distance / Speed, Enum.EasingStyle.Linear),
+            { CFrame = Pos }
+        )
+        tween:Play()
+        lastTweenTime = currentTime
+    end
+end
+local lastTPBTime = 0
+local tpbCooldown = 0.5
+function TPB(pos, boat)
+    local currentTime = tick()
+    if currentTime - lastTPBTime >= tpbCooldown then
+        local tween_s = game:GetService("TweenService")
+        local distance = (boat.CFrame.Position - pos.Position).Magnitude
+        local speed = getgenv().SpeedBoat
+        local info = TweenInfo.new(distance / speed, Enum.EasingStyle.Linear)
+        if distance <= 25 then
+            return {Stop = function() end}
+        else
+            local tween = tween_s:Create(boat, info, {CFrame = pos})
+            tween:Play()
+            lastTPBTime = currentTime
+            return {
+                Stop = function()
+                    tween:Cancel()
+                end
+            }
+        end
+    end
+end
+local lastEquipTime = 0
+local equipCooldown = 0.2
+function EquipAllWeapon()
+    pcall(function()
+        local currentTime = tick()
+        if currentTime - lastEquipTime >= equipCooldown then
+            for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if v:IsA('Tool') and not (v.Name == "Summon Sea Beast" or v.Name == "Water Body" or v.Name == "Awakening") then
+                    local ToolHumanoid = game.Players.LocalPlayer.Backpack:FindFirstChild(v.Name)
+                    if ToolHumanoid then
+                        game.Players.LocalPlayer.Character.Humanoid:EquipTool(ToolHumanoid)
+                    end
+                end
+            end
+            lastEquipTime = currentTime
+        end
+    end)
+end
+function CheckNearestTeleporter(aI)
+    local MyLevel = game.Players.LocalPlayer.Data.Level.Value
+    local vcspos = aI.Position
+    local min = math.huge
+    local min2 = math.huge
+    local y = game.PlaceId
+    local World1, World2, World3
+    if y == 2753915549 then
+        World1 = true
+    elseif y == 4442272183 then
+        World2 = true
+    elseif y == 7449423635 then
+        World3 = true
+    end
+    local TableLocations = {}
+    if World3 then
+        TableLocations = {
+            ["Mansion"] = Vector3.new(-12471, 374, -7551),
+            ["Hydra"] = Vector3.new(5659, 1013, -341),
+            ["Caslte On The Sea"] = Vector3.new(-5092, 315, -3130),
+            ["Floating Turtle"] = Vector3.new(-12001, 332, -8861),
+            ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
+            ["Temple Of Time"] = Vector3.new(28286, 14897, 103)
+        }
+    elseif World2 then
+        TableLocations = {
+            ["Flamingo Mansion"] = Vector3.new(-317, 331, 597),
+            ["Flamingo Room"] = Vector3.new(2283, 15, 867),
+            ["Cursed Ship"] = Vector3.new(923, 125, 32853),
+            ["Zombie Island"] = Vector3.new(-6509, 83, -133)
+        }
+    elseif World1 then
+        TableLocations = {
+            ["Sky Island 1"] = Vector3.new(-4652, 873, -1754),
+            ["Sky Island 2"] = Vector3.new(-7895, 5547, -380),
+            ["Under Water Island"] = Vector3.new(61164, 5, 1820),
+            ["Under Water Island Entrace"] = Vector3.new(3865, 5, -1926)
+        }
+    end
+    local TableLocations2 = {}
+    for r, v in pairs(TableLocations) do
+        TableLocations2[r] = (v - vcspos).Magnitude
+    end
+    for r, v in pairs(TableLocations2) do
+        if v < min then
+            min = v
+            min2 = v
+        end
+    end
+    local choose
+    for r, v in pairs(TableLocations2) do
+        if v <= min then
+            choose = TableLocations[r]
+        end
+    end
+    local min3 = (vcspos - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+    if min2 <= min3 then
+        return choose
+    end
+end    
+function requestEntrance(aJ)
+    local args = {"requestEntrance", aJ}
+    game.ReplicatedStorage.Remotes.CommF_:InvokeServer(unpack(args))    
+    local oldcframe = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+    local char = game.Players.LocalPlayer.Character.HumanoidRootPart
+    char.CFrame = CFrame.new(oldcframe.X, oldcframe.Y + 50, oldcframe.Z)    
+    task.wait(0.5)
+end   
+function topos(Tween_Pos)
+    pcall(function()
+        if game:GetService("Players").LocalPlayer 
+            and game:GetService("Players").LocalPlayer.Character 
+            and game:GetService("Players").LocalPlayer.Character:FindFirstChild("Humanoid") 
+            and game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart") 
+            and game:GetService("Players").LocalPlayer.Character.Humanoid.Health > 0 
+            and game:GetService("Players").LocalPlayer.Character.HumanoidRootPart then
+            if not TweenSpeed then
+                TweenSpeed = 350
+            end
+            DefualtY = Tween_Pos.Y
+            TargetY = Tween_Pos.Y
+            targetCFrameWithDefualtY = CFrame.new(Tween_Pos.X, DefualtY, Tween_Pos.Z)
+            targetPos = Tween_Pos.Position
+            oldcframe = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+            Distance = (targetPos - game:GetService("Players").LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position).Magnitude
+            if Distance <= 300 then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Tween_Pos
+            end
+            local aM = CheckNearestTeleporter(Tween_Pos)
+            if aM then
+                pcall(function()
+                    tween:Cancel()
+                end)
+                requestEntrance(aM)
+            end
+            b1 = CFrame.new(
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.X,
+                DefualtY,
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Z
+            )
+            IngoreY = true
+            if IngoreY and (b1.Position - targetCFrameWithDefualtY.Position).Magnitude > 5 then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.X,
+                    DefualtY,
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Z
+                )
+                local tweenfunc = {}
+                local aN = game:GetService("TweenService")
+                local aO = TweenInfo.new(
+                    (targetPos - game:GetService("Players").LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position).Magnitude / TweenSpeed,
+                    Enum.EasingStyle.Linear
+                )
+                tween = aN:Create(
+                    game:GetService("Players").LocalPlayer.Character["HumanoidRootPart"],
+                    aO,
+                    {CFrame = targetCFrameWithDefualtY}
+                )
+                tween:Play()
+                function tweenfunc:Stop()
+                    tween:Cancel()
+                end
+                tween.Completed:Wait()
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.X,
+                    TargetY,
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Z
+                )
+            else
+                local tweenfunc = {}
+                local aN = game:GetService("TweenService")
+                local aO = TweenInfo.new(
+                    (targetPos - game:GetService("Players").LocalPlayer.Character:WaitForChild("HumanoidRootPart").Position).Magnitude / TweenSpeed,
+                    Enum.EasingStyle.Linear
+                )
+                tween = aN:Create(
+                    game:GetService("Players").LocalPlayer.Character["HumanoidRootPart"],
+                    aO,
+                    {CFrame = Tween_Pos}
+                )
+                tween:Play()
+                function tweenfunc:Stop()
+                    tween:Cancel()
+                end
+                tween.Completed:Wait()
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.X,
+                    TargetY,
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Z
+                )
+            end
+            if not tween then
+                return tween
+            end
+            return tweenfunc
+        end
+    end)
+end
+function StopTween(target)
+    pcall(function()
+        if not target then
+            getgenv().StopTween = true
+            if tween then
+                tween:Cancel()
+                tween = nil
+            end
+            local player = game:GetService("Players").LocalPlayer
+            local character = player and player.Character
+            local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                humanoidRootPart.Anchored = true
+                task.wait(0.1)
+                humanoidRootPart.CFrame = humanoidRootPart.CFrame
+                humanoidRootPart.Anchored = false
+            end
+            local bodyClip = humanoidRootPart and humanoidRootPart:FindFirstChild("BodyClip")
+            if bodyClip then
+                bodyClip:Destroy()
+            end
+            if character:FindFirstChild("highlight") then
+                character.highlight:Destroy()
+            end
+            getgenv().StopTween = false
+            getgenv().Clip = false
+        end
+    end)
+end
+
+spawn(function()
+    while task.wait() do
+        pcall(function()
+            local plr = game:GetService("Players").LocalPlayer
+            local char = plr.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+            if not char or not hrp then return end
+
+            if getgenv().TeleportIsland or 
+               getgenv().TeleportToFruit
+               
+            then
+                if not hrp:FindFirstChild("BodyClip") then
+                    local Noclip = Instance.new("BodyVelocity")
+                    Noclip.Name = "BodyClip"
+                    Noclip.Parent = hrp
+                    Noclip.MaxForce = Vector3.new(100000, 100000, 100000)
+                    Noclip.Velocity = Vector3.new(0, 0, 0)
+                end
+
+                if not char:FindFirstChild("highlight") then
+                    local h = Instance.new("Highlight")
+                    h.Name = "highlight"
+                    h.Enabled = true
+                    h.FillColor = Color3.fromRGB(0,191,255)
+                    h.OutlineColor = Color3.fromRGB(0,191,255)
+                    h.FillTransparency = 0.5
+                    h.OutlineTransparency = 0.2
+                    h.Parent = char
+                end
+
+            else
+                local bodyClip = hrp:FindFirstChild("BodyClip")
+                if bodyClip then
+                    bodyClip:Destroy()
+                end
+
+                if char:FindFirstChild("highlight") then
+                    char.highlight:Destroy()
+                end
+            end
+        end)
+    end
+end)
+
+spawn(function()
+    pcall(function()
+        game:GetService("RunService").Stepped:Connect(function()
+            if getgenv().TeleportIsland or 
+              getgenv().TeleportToFruit
+               
+            then
+                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA("BasePart") then
+                        v.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end)
+end)
+spawn(function()
+    local lastCall = 0
+    local callInterval = 1
+    while wait() do
+        if (getgenv().AutoFarm or getgenv().Kill_Trial_V4) and tick() - lastCall > callInterval then
+            pcall(function()
+                game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Ken", true)
+            end)
+            lastCall = tick()
+        end
+    end
+end)
+spawn(function()
+    local lastPosUpdate = tick()
+    while task.wait(0.1) do
+        if getgenv().AutoSeaBest and CheckSeaBeast() then
+            local currentTime = tick()
+            if currentTime - lastPosUpdate >= 0.5 then
+                Pos = CFrame.new(math.random(-600, 600), math.random(0, 300), math.random(-600, 600))
+                lastPosUpdate = currentTime
+            end
+        end
+    end
+end)
+
+function StoreAllFruits()
+    pcall(function()
+        local player = game:GetService("Players").LocalPlayer
+        local character = player.Character
+        local backpack = player.Backpack
+        if not character or not backpack then return end
+
+        local fruits = {
+            {"Rocket Fruit","Rocket-Rocket"},
+            {"Spin Fruit","Spin-Spin"},
+            {"Blade Fruit","Blade-Blade"},
+            {"Spring Fruit","Spring-Spring"},
+            {"Bomb Fruit","Bomb-Bomb"},
+            {"Smoke Fruit","Smoke-Smoke"},
+            {"Spike Fruit","Spike-Spike"},
+            {"Flame Fruit","Flame-Flame"},
+            {"Falcon Fruit","Falcon-Falcon"},
+            {"Ice Fruit","Ice-Ice"},
+            {"Sand Fruit","Sand-Sand"},
+            {"Dark Fruit","Dark-Dark"},
+            {"Diamond Fruit","Diamond-Diamond"},
+            {"Light Fruit","Light-Light"},
+            {"Rubber Fruit","Rubber-Rubber"},
+            {"Barrier Fruit","Barrier-Barrier"},
+            {"Ghost Fruit","Ghost-Ghost"},
+            {"Magma Fruit","Magma-Magma"},
+            {"Quake Fruit","Quake-Quake"},
+            {"Buddha Fruit","Buddha-Buddha"},
+            {"Love Fruit","Love-Love"},
+            {"Spider Fruit","Spider-Spider"},
+            {"Sound Fruit","Sound-Sound"},
+            {"Phoenix Fruit","Phoenix-Phoenix"},
+            {"Portal Fruit","Portal-Portal"},
+            {"Rumble Fruit","Rumble-Rumble"},
+            {"Pain Fruit","Pain-Pain"},
+            {"Blizzard Fruit","Blizzard-Blizzard"},
+            {"Gravity Fruit","Gravity-Gravity"},
+            {"Mammoth Fruit","Mammoth-Mammoth"},
+            {"T-Rex Fruit","T-Rex-T-Rex"},
+            {"Dough Fruit","Dough-Dough"},
+            {"Shadow Fruit","Shadow-Shadow"},
+            {"Venom Fruit","Venom-Venom"},
+            {"Gas Fruit","Gas-Gas"},
+            {"Control Fruit","Control-Control"},
+            {"Spirit Fruit","Spirit-Spirit"},
+            {"Leopard Fruit","Leopard-Leopard"},
+            {"Yeti Fruit","Yeti-Yeti"},
+            {"Kitsune Fruit","Kitsune-Kitsune"},
+            {"Dragon Fruit","Dragon-Dragon"},
+        }
+
+        for _, f in ipairs(fruits) do
+            local tool = character:FindFirstChild(f[1]) or backpack:FindFirstChild(f[1])
+            if tool then
+                game:GetService("ReplicatedStorage")
+                    .Remotes
+                    .CommF_
+                    :InvokeServer("StoreFruit", f[2], tool)
+            end
+        end
+    end)
+end
+
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+
+local Player = Players.LocalPlayer
+local PlaceID = game.PlaceId
+local AllIDs = {}
+local foundAnything = ""
+local actualHour = os.date("!*t").hour
+
+local function TPReturner()
+    local Site
+
+    if foundAnything == "" then
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
+            )
+        )
+    else
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything
+            )
+        )
+    end
+
+    if Site.nextPageCursor then
+        foundAnything = Site.nextPageCursor
+    end
+
+    for _, v in pairs(Site.data) do
+        if v.playing < v.maxPlayers then
+            local ID = tostring(v.id)
+            local CanHop = true
+
+            for _, Existing in pairs(AllIDs) do
+                if ID == Existing then
+                    CanHop = false
+                    break
+                end
+            end
+
+            if CanHop then
+                table.insert(AllIDs, ID)
+                TeleportService:TeleportToPlaceInstance(PlaceID, ID, Player)
+                return
+            end
+        end
+    end
+end
+
+pcall(function()
+    TPReturner()
+    if foundAnything ~= "" then
+        TPReturner()
+    end
+end)
+
+spawn(function()
+    while task.wait(1) do
+        local foundFruit = false
+
+        for _, v in ipairs(workspace:GetChildren()) do
+            if v:IsA("Model")
+            and string.find(v.Name,"Fruit")
+            and v:FindFirstChild("Handle") then
+
+                foundFruit = true
+
+                getgenv().TeleportToFruit = true
+                topos(v.Handle.CFrame * CFrame.new(0,3,0))
+
+                repeat task.wait()
+                until not v.Parent
+                or (v.Handle.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 8
+
+                task.wait(0.5)
+                StoreAllFruits()
+
+                StopTween()
+                getgenv().TeleportToFruit = false
+                break
+            end
+        end
+
+        if not foundFruit then
+            task.wait(1)
+            pcall(function()
+                TPReturner()
+            end)
+            break
+        end
+    end
+end)
