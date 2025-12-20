@@ -437,60 +437,6 @@ spawn(function()
     end
 end)
 
-local function IsGameplayObject(obj)
-    if obj:FindFirstAncestorOfClass("Tool") then return true end
-    if obj.Parent and obj.Parent:FindFirstChildOfClass("Humanoid") then return true end
-
-    local model = obj:FindFirstAncestorOfClass("Model")
-    if model and model:FindFirstChildOfClass("Humanoid") then
-        return true
-    end
-
-    if obj:IsA("SpawnLocation") then return true end
-    if obj:IsA("Seat") then return true end
-    if obj:IsA("VehicleSeat") then return true end
-
-    if LocalPlayer.Character and obj:IsDescendantOf(LocalPlayer.Character) then
-        return true
-    end
-
-    return false
-end
-
-local function IsFruit(obj)
-    if not obj:IsA("BasePart") then return false end
-    return obj.Name:lower():find("fruit") ~= nil
-end
-
-local function ClearVisual(obj)
-    if not obj:IsA("BasePart") then return end
-    if obj.Transparency == 1 then return end
-    if IsGameplayObject(obj) then return end
-    if IsFruit(obj) then return end
-
-    obj.CanCollide = false
-    obj.CastShadow = false
-    obj.Transparency = 1
-end
-
-local function ClearMap()
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        pcall(function()
-            ClearVisual(obj)
-        end)
-    end
-end
-
-task.spawn(function()
-    ClearMap()
-end)
-
-Workspace.DescendantAdded:Connect(function(obj)
-    task.wait(0.1)
-    pcall(function()
-        ClearVisual(obj)
-    end)
-end)
 
 function StoreAllFruits()
     pcall(function()
