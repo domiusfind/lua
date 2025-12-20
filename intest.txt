@@ -524,13 +524,6 @@ local function TPReturner()
     end
 end
 
-pcall(function()
-    TPReturner()
-    if foundAnything ~= "" then
-        TPReturner()
-    end
-end)
-
 spawn(function()
     while task.wait(1) do
         local foundFruit = false
@@ -560,9 +553,7 @@ spawn(function()
 
         if not foundFruit then
             task.wait(1)
-            pcall(function()
-                TPReturner()
-            end)
+            pcall(TPReturner)
             break
         end
     end
