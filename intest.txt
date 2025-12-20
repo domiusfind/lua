@@ -1,3 +1,29 @@
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualUser = game:GetService("VirtualUser")
+local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local Player = Players.LocalPlayer
+local Remotes = ReplicatedStorage:WaitForChild("Remotes", 5)
+local CommF = Remotes:WaitForChild("CommF_", 5) 
+local PlayerGui = Player:WaitForChild("PlayerGui", 5)
+local MainGui = PlayerGui:WaitForChild("Main", 5)
+local lastNotificationTime = 0
+local notificationCooldown = 10
+local currentTime = tick()
+if currentTime - lastNotificationTime >= notificationCooldown then
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Midgard - Find Fruit",
+        Text = "Loading",
+        Duration = 2
+    })
+    lastNotificationTime = currentTime
+end
+
+
 getgenv().team = "Pirates"
 
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
@@ -579,3 +605,14 @@ spawn(function()
         end
     end
 end)
+local lastNotificationTime = 0
+local notificationCooldown = 10
+local currentTime = tick()
+if currentTime - lastNotificationTime >= notificationCooldown then
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Midgard - Find Fruit",
+        Text = "Successfully",
+        Duration = 2
+    })
+    lastNotificationTime = currentTime
+end
