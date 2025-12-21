@@ -479,49 +479,50 @@ local Players = game:GetService("Players")
 
 local Player = Players.LocalPlayer
 local PlaceID = game.PlaceId
+
 local AllIDs = {}
 local foundAnything = ""
-local actualHour = os.date("!*t").hour
 
 local function TPReturner()
     local Site
 
-    if foundAnything == "" then  
-        Site = HttpService:JSONDecode(  
-            game:HttpGet(  
-                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"  
-            )  
-        )  
-    else  
-        Site = HttpService:JSONDecode(  
-            game:HttpGet(  
-                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything  
-            )  
-        )  
-    end  
+    if foundAnything == "" then
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
+            )
+        )
+    else
+        Site = HttpService:JSONDecode(
+            game:HttpGet(
+                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything
+            )
+        )
+    end
 
-    if Site.nextPageCursor then  
-        foundAnything = Site.nextPageCursor  
-    end  
+    if Site.nextPageCursor then
+        foundAnything = Site.nextPageCursor
+    else
+        foundAnything = ""
+    end
 
-    for _, v in pairs(Site.data) do  
-        if v.playing < v.maxPlayers then  
-            local ID = tostring(v.id)  
-            local CanHop = true  
+    for _, v in ipairs(Site.data) do
+        local ID = tostring(v.id)
 
-            for _, Existing in pairs(AllIDs) do  
-                if ID == Existing then  
-                    CanHop = false  
-                    break  
-                end  
-            end  
+        if v.playing < v.maxPlayers and not AllIDs[ID] then
+            AllIDs[ID] = true
+            TeleportService:TeleportToPlaceInstance(PlaceID, ID, Player)
+            return
+        end
+    end
 
-            if CanHop then  
-                table.insert(AllIDs, ID)  
-                TeleportService:TeleportToPlaceInstance(PlaceID, ID, Player)  
-                return  
-            end  
-        end  
+    if foundAnything ~= "" then
+        task.wait(0.3)
+        TPReturner()
+    else
+        AllIDs = {}
+        task.wait(0.5)
+        TPReturner()
     end
 end
 
