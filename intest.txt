@@ -1,31 +1,3 @@
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
-local Workspace = game:GetService("Workspace")
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualUser = game:GetService("VirtualUser")
-local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
-local Player = Players.LocalPlayer
-local Remotes = ReplicatedStorage:WaitForChild("Remotes", 5)
-local CommF = Remotes:WaitForChild("CommF_", 5) 
-local PlayerGui = Player:WaitForChild("PlayerGui", 5)
-local MainGui = PlayerGui:WaitForChild("Main", 5)
-local lastNotificationTime = 0
-local notificationCooldown = 10
-local currentTime = tick()
-if currentTime - lastNotificationTime >= notificationCooldown then
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Midgard - Find Fruit",
-        Text = "Loading",
-        Duration = 2
-    })
-    lastNotificationTime = currentTime
-end
-
-
 getgenv().team = "Pirates"
 
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
@@ -507,49 +479,53 @@ local Players = game:GetService("Players")
 
 local Player = Players.LocalPlayer
 local PlaceID = game.PlaceId
-local AllIDs = {}
-local foundAnything = ""
-local actualHour = os.date("!*t").hour
+
+local VisitedServers = {}
+local Cursor = nil
+
+local MIN_PLAYERS = 1
+local MAX_PLAYERS = 3
 
 local function TPReturner()
-    local Site
-
-    if foundAnything == "" then
-        Site = HttpService:JSONDecode(
-            game:HttpGet(
-                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
-            )
-        )
-    else
-        Site = HttpService:JSONDecode(
-            game:HttpGet(
-                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything
-            )
-        )
+    local url = "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
+    if Cursor then
+        url = url .. "&cursor=" .. Cursor
     end
 
-    if Site.nextPageCursor then
-        foundAnything = Site.nextPageCursor
-    end
+    local success, response = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(url))
+    end)
+    if not success or not response or not response.data then return end
 
-    for _, v in pairs(Site.data) do
-        if v.playing < v.maxPlayers then
-            local ID = tostring(v.id)
-            local CanHop = true
+    Cursor = response.nextPageCursor
 
-            for _, Existing in pairs(AllIDs) do
-                if ID == Existing then
-                    CanHop = false
-                    break
-                end
-            end
+    local BestServer = nil
+    local BestPlayers = math.huge
 
-            if CanHop then
-                table.insert(AllIDs, ID)
-                TeleportService:TeleportToPlaceInstance(PlaceID, ID, Player)
-                return
+    for _, server in ipairs(response.data) do
+        local id = tostring(server.id)
+        local playing = server.playing
+
+        if not VisitedServers[id]
+        and playing >= MIN_PLAYERS
+        and playing <= MAX_PLAYERS then
+
+            if playing < BestPlayers then
+                BestPlayers = playing
+                BestServer = id
             end
         end
+    end
+
+    if BestServer then
+        VisitedServers[BestServer] = true
+        TeleportService:TeleportToPlaceInstance(PlaceID, BestServer, Player)
+        return
+    end
+
+    if Cursor then
+        task.wait(0.3)
+        TPReturner()
     end
 end
 
@@ -608,14 +584,3 @@ spawn(function()
         end
     end
 end)
-local lastNotificationTime = 0
-local notificationCooldown = 10
-local currentTime = tick()
-if currentTime - lastNotificationTime >= notificationCooldown then
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Midgard - Find Fruit",
-        Text = "Successfully",
-        Duration = 2
-    })
-    lastNotificationTime = currentTime
-end
