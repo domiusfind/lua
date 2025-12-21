@@ -479,53 +479,49 @@ local Players = game:GetService("Players")
 
 local Player = Players.LocalPlayer
 local PlaceID = game.PlaceId
-
-local VisitedServers = {}
-local Cursor = nil
-
-local MIN_PLAYERS = 1
-local MAX_PLAYERS = 4
+local AllIDs = {}
+local foundAnything = ""
+local actualHour = os.date("!*t").hour
 
 local function TPReturner()
-    local url = "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
-    if Cursor then
-        url = url .. "&cursor=" .. Cursor
-    end
+    local Site
 
-    local success, response = pcall(function()
-        return HttpService:JSONDecode(game:HttpGet(url))
-    end)
-    if not success or not response or not response.data then return end
+    if foundAnything == "" then  
+        Site = HttpService:JSONDecode(  
+            game:HttpGet(  
+                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"  
+            )  
+        )  
+    else  
+        Site = HttpService:JSONDecode(  
+            game:HttpGet(  
+                "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything  
+            )  
+        )  
+    end  
 
-    Cursor = response.nextPageCursor
+    if Site.nextPageCursor then  
+        foundAnything = Site.nextPageCursor  
+    end  
 
-    local BestServer = nil
-    local BestPlayers = math.huge
+    for _, v in pairs(Site.data) do  
+        if v.playing < v.maxPlayers then  
+            local ID = tostring(v.id)  
+            local CanHop = true  
 
-    for _, server in ipairs(response.data) do
-        local id = tostring(server.id)
-        local playing = server.playing
+            for _, Existing in pairs(AllIDs) do  
+                if ID == Existing then  
+                    CanHop = false  
+                    break  
+                end  
+            end  
 
-        if not VisitedServers[id]
-        and playing >= MIN_PLAYERS
-        and playing <= MAX_PLAYERS then
-
-            if playing < BestPlayers then
-                BestPlayers = playing
-                BestServer = id
-            end
-        end
-    end
-
-    if BestServer then
-        VisitedServers[BestServer] = true
-        TeleportService:TeleportToPlaceInstance(PlaceID, BestServer, Player)
-        return
-    end
-
-    if Cursor then
-        task.wait(0.3)
-        TPReturner()
+            if CanHop then  
+                table.insert(AllIDs, ID)  
+                TeleportService:TeleportToPlaceInstance(PlaceID, ID, Player)  
+                return  
+            end  
+        end  
     end
 end
 
@@ -558,7 +554,7 @@ spawn(function()
 
         if not foundFruit then
             task.wait(1)
-            TPReturner()
+            pcall(TPReturner)
             break
         end
     end
