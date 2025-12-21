@@ -484,7 +484,7 @@ local VisitedServers = {}
 local Cursor = nil
 
 local MIN_PLAYERS = 1
-local MAX_PLAYERS = 3
+local MAX_PLAYERS = 4
 
 local function TPReturner()
     local url = "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
@@ -558,7 +558,7 @@ spawn(function()
 
         if not foundFruit then
             task.wait(1)
-            pcall(TPReturner)
+            TPReturner()
             break
         end
     end
